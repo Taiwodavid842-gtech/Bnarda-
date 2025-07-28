@@ -365,11 +365,11 @@
         
         #ina {
             position: absolute;
-            top: 4%;
+            top: 3%;
             left: 72%;
-            border-radius: 50%;
-            width: 22%;
-            height: 20.9%;
+            border-radius: 7%;
+            width: 25%;
+            height: 22.4%;
             border: 2px solid var(--church-gold);
             z-index: 2;
             overflow: hidden;
@@ -391,9 +391,10 @@
             position: absolute;
             top: 4%;
             left: 4%;
-            width: 15%;
-            height: 15%;
+            width: 7%;
+            height: 5%;
             z-index: 2;
+            border-radius: 50%
             overflow: hidden;
             transition: var(--transition);
         }
@@ -1520,7 +1521,7 @@
                 document.body.appendChild(tempContainer);
                 
                 html2canvas(tempContainer, {
-                    scale: 3, // Increase scale for higher resolution
+                    scale: 4, // Increase scale for higher resolution
                     useCORS: true,
                     logging: false
                 }).then(canvas => {
