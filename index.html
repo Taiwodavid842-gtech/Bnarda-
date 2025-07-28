@@ -1496,7 +1496,7 @@
         
         
         
-       // Download as PNG - Fixed positioning and enhanced quality
+       // Download as PNG - Optimized for size and quality
 document.getElementById('dl-png').addEventListener('click', function() {
     const element = document.getElementById('board');
     const nameContainer = document.getElementById('name-display-container');
@@ -1512,21 +1512,21 @@ document.getElementById('dl-png').addEventListener('click', function() {
         this.classList.remove('pulse');
     }, 2000);
 
-    // Create container with original dimensions
+    // Create container with controlled size
     const tempContainer = document.createElement('div');
     tempContainer.style.position = 'absolute';
     tempContainer.style.left = '-9999px';
-    tempContainer.style.width = element.offsetWidth + 'px'; // Keep original width
+    tempContainer.style.width = (element.offsetWidth * 0.8) + 'px'; // 20% smaller
     tempContainer.style.backgroundColor = 'white';
-    tempContainer.style.overflow = 'hidden'; // Prevent shifting
+    tempContainer.style.overflow = 'hidden';
 
-    // Clone with locked positions
+    // Clone with precise positioning
     const boardClone = element.cloneNode(true);
     boardClone.style.width = '100%';
-    boardClone.style.position = 'relative'; // Establish positioning context
+    boardClone.style.position = 'relative';
     boardClone.style.filter = 'brightness(1.1) contrast(1.1)';
 
-    // Lock profile photo position
+    // Perfectly position profile photo
     const inaClone = boardClone.querySelector('#ina');
     if (inaClone) {
         inaClone.style.position = 'absolute';
@@ -1539,10 +1539,11 @@ document.getElementById('dl-png').addEventListener('click', function() {
         inaClone.style.filter = 'brightness(1.05)';
     }
 
-    // Enhance flyer image
+    // Enhance flyer image quality
     const flyerImg = boardClone.querySelector('#flyer-download');
     if (flyerImg) {
         flyerImg.style.filter = 'brightness(1.05) saturate(1.1)';
+        flyerImg.style.width = '100%'; // Ensure proper scaling
     }
 
     tempContainer.appendChild(boardClone);
@@ -1555,28 +1556,30 @@ document.getElementById('dl-png').addEventListener('click', function() {
     
     document.body.appendChild(tempContainer);
 
+    // High-quality rendering with precise scaling
     html2canvas(tempContainer, {
-        scale: 2, // Better for positioning
+        scale: 1.5, // Balanced quality/size
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
         allowTaint: true,
         windowWidth: tempContainer.scrollWidth,
-        windowHeight: tempContainer.scrollHeight
+        windowHeight: tempContainer.scrollHeight,
+        dpi: 192 // Higher DPI for crispness
     }).then(canvas => {
+        // Final quality touch-up
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         
+        // Create download link
         const link = document.createElement('a');
         link.download = `dunamis-anniversary-pass-${userNames[0] || 'guest'}.png`;
-        link.href = canvas.toDataURL('image/png', 1.0);
+        link.href = canvas.toDataURL('image/png', 1.0); // Maximum quality
         link.click();
         document.body.removeChild(tempContainer);
     });
 });
-
-
 
        
         
