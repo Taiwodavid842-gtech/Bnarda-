@@ -390,9 +390,9 @@
         .church-logo-container {
             position: absolute;
             top: 4%;
-            left: 4%;
-            width: 7%;
-            height: 5%;
+            left: 4;
+            width: 0;
+            height: 0;
             z-index: 2;
             border-radius: 50%
             overflow: hidden;
@@ -1493,57 +1493,166 @@
             }
         }
         
-        // Download as PNG - Enhanced with higher resolution
-        document.getElementById('dl-png').addEventListener('click', function() {
-            const element = document.getElementById('board');
-            const nameContainer = document.getElementById('name-display-container');
-            
-            // Show a confirmation if user hasn't added their name
-            if (userNames.length === 0) {
-                if (!confirm("You haven't added your name yet. Download without name?")) {
-                    return;
-                }
-            }
-            
-            // Add pulse animation to download button
-            this.classList.add('pulse');
-            setTimeout(() => {
-                this.classList.remove('pulse');
-            }, 2000);
-            
-            // Temporarily include the name container in the screenshot
-            if (userNames.length > 0) {
-                const tempContainer = document.createElement('div');
-                tempContainer.appendChild(element.cloneNode(true));
-                tempContainer.appendChild(nameContainer.cloneNode(true));
-                tempContainer.style.position = 'absolute';
-                tempContainer.style.left = '-9999px';
-                document.body.appendChild(tempContainer);
-                
-                html2canvas(tempContainer, {
-                    scale: 4, // Increase scale for higher resolution
-                    useCORS: true,
-                    logging: false
-                }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `dunamis-anniversary-pass-${userNames[0] || 'guest'}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    document.body.removeChild(tempContainer);
-                });
-            } else {
-                html2canvas(element, {
-                    scale: 3, // Increase scale for higher resolution
-                    useCORS: true,
-                    logging: false
-                }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `dunamis-anniversary-pass-${userNames[0] || 'guest'}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                });
-            }
-        });
+        // Download as PNG - Optimized for brightness and clarity
+document.getElementById('dl-png').addEventListener('click', function() {
+    const element = document.getElementById('board');
+    const nameContainer = document.getElementById('name-display-container');
+    
+    if (userNames.length === 0) {
+        if (!confirm("You haven't added your name yet. Download without name?")) {
+            return;
+        }
+    }
+    
+    this.classList.add('pulse');
+    setTimeout(() => {
+        this.classList.remove('pulse');
+    }, 2000);
+
+    // Create optimized container
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.width = (element.offsetWidth * 2) + 'px';
+    tempContainer.style.backgroundColor = 'white';
+
+    // Clone with enhancements
+    const boardClone = element.cloneNode(true);
+    boardClone.style.width = '100%';
+    boardClone.style.filter = 'brightness(1.1) contrast(1.1)';
+    
+    // Enhance flyer image
+    const flyerImg = boardClone.querySelector('#flyer-download');
+    if (flyerImg) {
+        flyerImg.style.filter = 'brightness(1.05) saturate(1.1)';
+    }
+    
+    // Enhance profile photo
+    const inaClone = boardClone.querySelector('#ina');
+    if (inaClone) {
+        inaClone.style.filter = 'brightness(1.05)';
+    }
+
+    tempContainer.appendChild(boardClone);
+    
+    if (userNames.length > 0) {
+        const nameClone = nameContainer.cloneNode(true);
+        nameClone.style.width = '100%';
+        tempContainer.appendChild(nameClone);
+    }
+    
+    document.body.appendChild(tempContainer);
+
+    html2canvas(tempContainer, {
+        scale: 3,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        allowTaint: true,
+        windowWidth: tempContainer.scrollWidth,
+        windowHeight: tempContainer.scrollHeight
+    }).then(canvas => {
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        
+        const link = document.createElement('a');
+        link.download = `dunamis-anniversary-pass-${userNames[0] || 'guest'}.png`;
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+        document.body.removeChild(tempContainer);
+    });
+});
+        
+        
+        
+        
+        // Download as PNG - Optimized for brightness and clarity
+document.getElementById('dl-png').addEventListener('click', function() {
+    const element = document.getElementById('board');
+    const nameContainer = document.getElementById('name-display-container');
+    
+    if (userNames.length === 0) {
+        if (!confirm("You haven't added your name yet. Download without name?")) {
+            return;
+        }
+    }
+    
+    this.classList.add('pulse');
+    setTimeout(() => {
+        this.classList.remove('pulse');
+    }, 2000);
+    
+    // Create a temporary container with enhanced styling
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.width = (element.offsetWidth * 2) + 'px';
+    tempContainer.style.backgroundColor = 'white';
+    
+    // Clone elements with brightness enhancements
+    const boardClone = element.cloneNode(true);
+    boardClone.style.width = '100%';
+    boardClone.style.filter = 'brightness(1.1) contrast(1.1)';
+    
+    // Enhance the profile photo
+    const inaClone = boardClone.querySelector('#ina');
+    if (inaClone) {
+        inaClone.style.filter = 'brightness(1.05)';
+    }
+    
+    // Enhance the flyer image
+    const flyerImg = boardClone.querySelector('#flyer-download');
+    if (flyerImg) {
+        flyerImg.style.filter = 'brightness(1.05) saturate(1.1)';
+    }
+    
+    tempContainer.appendChild(boardClone);
+    
+    if (userNames.length > 0) {
+        const nameClone = nameContainer.cloneNode(true);
+        nameClone.style.width = '100%';
+        tempContainer.appendChild(nameClone);
+    }
+    
+    document.body.appendChild(tempContainer);
+    
+    // Use enhanced html2canvas settings
+    html2canvas(tempContainer, {
+        scale: 3,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        allowTaint: true,
+        windowWidth: tempContainer.scrollWidth,
+        windowHeight: tempContainer.scrollHeight,
+        onclone: function(clonedDoc) {
+            // Apply enhancements to cloned elements
+            const clonedElements = clonedDoc.querySelectorAll('#board, #flyer-download, #ina');
+            clonedElements.forEach(el => {
+                if (el.id === 'board') el.style.filter = 'brightness(1.1) contrast(1.1)';
+                if (el.id === 'flyer-download') el.style.filter = 'brightness(1.05) saturate(1.1)';
+                if (el.id === 'ina') el.style.filter = 'brightness(1.05)';
+            });
+        }
+    }).then(canvas => {
+        // Final quality enhancements
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        
+        const link = document.createElement('a');
+        link.download = `dunamis-anniversary-pass-${userNames[0] || 'guest'}.png`;
+        link.href = canvas.toDataURL('image/png', 1.0); // Maximum quality
+        link.click();
+        document.body.removeChild(tempContainer);
+    });
+});
+        
+        
+        
+        
+        
         
         // Comments functionality
         document.getElementById('post-comment-btn').addEventListener('click', function() {
