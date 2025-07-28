@@ -376,6 +376,10 @@
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
             transition: var(--transition);
             background-color: white;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         #displayImage {
@@ -384,6 +388,7 @@
             object-fit: cover;
             display: none;
             background-size: cover;
+            object-position: center;
         }
         
         /* Church Logo Container */
@@ -1492,56 +1497,75 @@
             }
         }
         
-        // Download as PNG - Enhanced with higher resolution
+        // Download as PNG - Optimized for high quality
         document.getElementById('dl-png').addEventListener('click', function() {
             const element = document.getElementById('board');
             const nameContainer = document.getElementById('name-display-container');
             
-            // Show a confirmation if user hasn't added their name
             if (userNames.length === 0) {
                 if (!confirm("You haven't added your name yet. Download without name?")) {
                     return;
                 }
             }
             
-            // Add pulse animation to download button
             this.classList.add('pulse');
             setTimeout(() => {
                 this.classList.remove('pulse');
             }, 2000);
             
-            // Temporarily include the name container in the screenshot
-            if (userNames.length > 0) {
-                const tempContainer = document.createElement('div');
-                tempContainer.appendChild(element.cloneNode(true));
-                tempContainer.appendChild(nameContainer.cloneNode(true));
-                tempContainer.style.position = 'absolute';
-                tempContainer.style.left = '-9999px';
-                document.body.appendChild(tempContainer);
-                
-                html2canvas(tempContainer, {
-                    scale: 3, // Increase scale for higher resolution
-                    useCORS: true,
-                    logging: false
-                }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `dunamis-anniversary-pass-${userNames[0] || 'guest'}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    document.body.removeChild(tempContainer);
-                });
-            } else {
-                html2canvas(element, {
-                    scale: 3, // Increase scale for higher resolution
-                    useCORS: true,
-                    logging: false
-                }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `dunamis-anniversary-pass-${userNames[0] || 'guest'}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                });
+            // Create a temporary container with higher DPI
+            const tempContainer = document.createElement('div');
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.left = '-9999px';
+            tempContainer.style.width = element.offsetWidth * 2 + 'px';
+            tempContainer.style.height = 'auto';
+            tempContainer.style.backgroundColor = 'transparent';
+            
+            // Clone the elements
+            const boardClone = element.cloneNode(true);
+            boardClone.style.width = '100%';
+            boardClone.style.height = 'auto';
+            
+            // Fix the image display in the clone
+            const inaClone = boardClone.querySelector('#ina');
+            if (inaClone) {
+                inaClone.style.width = '22%';
+                inaClone.style.height = '20.9%';
+                inaClone.style.aspectRatio = '1/1';
             }
+            
+            tempContainer.appendChild(boardClone);
+            
+            if (userNames.length > 0) {
+                const nameClone = nameContainer.cloneNode(true);
+                nameClone.style.width = '100%';
+                tempContainer.appendChild(nameClone);
+            }
+            
+            document.body.appendChild(tempContainer);
+            
+            html2canvas(tempContainer, {
+                scale: 2, // High resolution
+                useCORS: true,
+                logging: false,
+                backgroundColor: null,
+                allowTaint: true,
+                width: tempContainer.offsetWidth,
+                height: tempContainer.offsetHeight,
+                windowWidth: tempContainer.scrollWidth,
+                windowHeight: tempContainer.scrollHeight
+            }).then(canvas => {
+                // Enhance the canvas quality
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                
+                const link = document.createElement('a');
+                link.download = `dunamis-anniversary-pass-${userNames[0] || 'guest'}.png`;
+                link.href = canvas.toDataURL('image/png', 1.0); // Maximum quality
+                link.click();
+                document.body.removeChild(tempContainer);
+            });
         });
         
         // Comments functionality
