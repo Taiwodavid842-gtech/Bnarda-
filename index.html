@@ -1496,7 +1496,7 @@
         
         
         
-       // Download as PNG - Optimized for size and quality
+     // Download as PNG - Perfect size and maximum quality
 document.getElementById('dl-png').addEventListener('click', function() {
     const element = document.getElementById('board');
     const nameContainer = document.getElementById('name-display-container');
@@ -1512,21 +1512,22 @@ document.getElementById('dl-png').addEventListener('click', function() {
         this.classList.remove('pulse');
     }, 2000);
 
-    // Create container with controlled size
+    // Create optimized container
     const tempContainer = document.createElement('div');
     tempContainer.style.position = 'absolute';
     tempContainer.style.left = '-9999px';
-    tempContainer.style.width = (element.offsetWidth * 0.8) + 'px'; // 20% smaller
+    tempContainer.style.width = '400px'; // Fixed ideal width
     tempContainer.style.backgroundColor = 'white';
     tempContainer.style.overflow = 'hidden';
+    tempContainer.style.border = '1px solid #eee'; // Visual guide for size
 
-    // Clone with precise positioning
+    // Clone with perfect positioning
     const boardClone = element.cloneNode(true);
     boardClone.style.width = '100%';
     boardClone.style.position = 'relative';
-    boardClone.style.filter = 'brightness(1.1) contrast(1.1)';
+    boardClone.style.filter = 'brightness(1.08) contrast(1.08)'; // Subtle enhancement
 
-    // Perfectly position profile photo
+    // Lock profile photo position precisely
     const inaClone = boardClone.querySelector('#ina');
     if (inaClone) {
         inaClone.style.position = 'absolute';
@@ -1536,14 +1537,16 @@ document.getElementById('dl-png').addEventListener('click', function() {
         inaClone.style.height = '22.4%';
         inaClone.style.borderRadius = '7%';
         inaClone.style.overflow = 'hidden';
-        inaClone.style.filter = 'brightness(1.05)';
+        inaClone.style.border = '2px solid var(--church-gold)';
+        inaClone.style.boxShadow = '0 0 8px rgba(0,0,0,0.2)';
     }
 
-    // Enhance flyer image quality
+    // Optimize flyer image
     const flyerImg = boardClone.querySelector('#flyer-download');
     if (flyerImg) {
-        flyerImg.style.filter = 'brightness(1.05) saturate(1.1)';
-        flyerImg.style.width = '100%'; // Ensure proper scaling
+        flyerImg.style.width = '100%';
+        flyerImg.style.height = 'auto';
+        flyerImg.style.objectFit = 'cover';
     }
 
     tempContainer.appendChild(boardClone);
@@ -1551,31 +1554,37 @@ document.getElementById('dl-png').addEventListener('click', function() {
     if (userNames.length > 0) {
         const nameClone = nameContainer.cloneNode(true);
         nameClone.style.width = '100%';
+        nameClone.style.marginTop = '15px';
         tempContainer.appendChild(nameClone);
     }
     
     document.body.appendChild(tempContainer);
 
-    // High-quality rendering with precise scaling
+    // Ultra-quality rendering
     html2canvas(tempContainer, {
-        scale: 1.5, // Balanced quality/size
+        scale: 2, // Perfect balance for quality/size
         useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
+        logging: true,
+        backgroundColor: null, // Transparent background
         allowTaint: true,
         windowWidth: tempContainer.scrollWidth,
         windowHeight: tempContainer.scrollHeight,
-        dpi: 192 // Higher DPI for crispness
+        letterRendering: true, // Crisper text
+        quality: 1 // Maximum quality
     }).then(canvas => {
-        // Final quality touch-up
-        const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        
         // Create download link
         const link = document.createElement('a');
         link.download = `dunamis-anniversary-pass-${userNames[0] || 'guest'}.png`;
-        link.href = canvas.toDataURL('image/png', 1.0); // Maximum quality
+        
+        // Optional: Resize canvas for perfect output (uncomment if needed)
+        // const resizedCanvas = document.createElement('canvas');
+        // resizedCanvas.width = 800; // Final desired width
+        // resizedCanvas.height = canvas.height * (800/canvas.width);
+        // const ctx = resizedCanvas.getContext('2d');
+        // ctx.drawImage(canvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+        // link.href = resizedCanvas.toDataURL('image/png', 1.0);
+        
+        link.href = canvas.toDataURL('image/png', 1.0);
         link.click();
         document.body.removeChild(tempContainer);
     });
