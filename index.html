@@ -1496,84 +1496,59 @@
         
         
         
-  document.getElementById('dl-png').addEventListener('click', function() {
-    const element = document.getElementById('board');
-    const nameContainer = document.getElementById('name-display-container');
-    
-    if (userNames.length === 0 && !confirm("Download without your name?")) return;
-    
-    this.classList.add('pulse');
-    setTimeout(() => this.classList.remove('pulse'), 2000);
-
-    // Set your desired dimensions
-    const desiredWidth = 500; // Adjust this for size (400-800 recommended)
-    const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'absolute';
-    tempContainer.style.left = '-9999px';
-    tempContainer.style.width = desiredWidth + 'px';
-    tempContainer.style.backgroundColor = 'white';
-
-    // Clone with high-quality profile photo handling
-    const boardClone = element.cloneNode(true);
-    boardClone.style.width = '100%';
-    
-    // Enhanced profile photo handling
-    const inaClone = boardClone.querySelector('#ina');
-    if (inaClone) {
-        const profileImg = inaClone.querySelector('#displayImage');
-        if (profileImg && profileImg.src) {
-            // Create new high-quality image element
-            const highResImg = new Image();
-            highResImg.src = profileImg.src;
-            highResImg.style.width = '100%';
-            highResImg.style.height = '100%';
-            highResImg.style.objectFit = 'cover';
-            inaClone.innerHTML = '';
-            inaClone.appendChild(highResImg);
-        }
-        
-        // Maintain positioning
-        inaClone.style.position = 'absolute';
-        inaClone.style.top = '3%';
-        inaClone.style.left = '72%';
-        inaClone.style.width = '25%';
-        inaClone.style.height = '22.4%';
-    }
-
-    tempContainer.appendChild(boardClone);
-    if (userNames.length > 0) {
-        tempContainer.appendChild(nameContainer.cloneNode(true));
-    }
-    
-    document.body.appendChild(tempContainer);
-
-    // Ultra-quality rendering
-    html2canvas(tempContainer, {
-        scale: window.devicePixelRatio || 1, // Device-aware scaling
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        allowTaint: true,
-        quality: 1,
-        letterRendering: true,
-        onclone: (clonedDoc) => {
-            // Reapply high-quality image in clone
-            const clonedIna = clonedDoc.getElementById('ina');
-            if (clonedIna) {
-                const clonedImg = clonedIna.querySelector('img');
-                if (clonedImg) {
-                    clonedImg.style.objectFit = 'cover';
+  // Download as PNG - Enhanced with higher resolution
+        document.getElementById('dl-png').addEventListener('click', function() {
+            const element = document.getElementById('board');
+            const nameContainer = document.getElementById('name-display-container');
+            
+            // Show a confirmation if user hasn't added their name
+            if (userNames.length === 0) {
+                if (!confirm("You haven't added your name yet. Download without name?")) {
+                    return;
                 }
             }
-        }
-    }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = `dunamis-flyer-${userNames[0] || 'guest'}.png`;
-        link.href = canvas.toDataURL('image/png', 1.0);
-        link.click();
-        document.body.removeChild(tempContainer);
-    });
-});
+            
+            // Add pulse animation to download button
+            this.classList.add('pulse');
+            setTimeout(() => {
+                this.classList.remove('pulse');
+            }, 2000);
+            
+            // Temporarily include the name container in the screenshot
+            if (userNames.length > 0) {
+                const tempContainer = document.createElement('div');
+                tempContainer.appendChild(element.cloneNode(true));
+                tempContainer.appendChild(nameContainer.cloneNode(true));
+                tempContainer.style.position = 'absolute';
+                tempContainer.style.left = '-9999px';
+                document.body.appendChild(tempContainer);
+                
+                html2canvas(tempContainer, {
+                    scale: 3, // Increase scale for higher resolution
+                    useCORS: true,
+                    logging: false
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `digerati-event-pass-${userNames[0] || 'guest'}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    document.body.removeChild(tempContainer);
+                });
+            } else {
+                html2canvas(element, {
+                    scale: 3, // Increase scale for higher resolution
+                    useCORS: true,
+                    logging: false
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `digerati-event-pass-${userNames[0] || 'guest'}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                });
+            }
+        });
+        
+        
         
         // Comments functionality
         document.getElementById('post-comment-btn').addEventListener('click', function() {
