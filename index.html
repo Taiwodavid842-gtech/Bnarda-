@@ -410,7 +410,7 @@
         .name-display-container {
             text-align: center;
             margin-top: 20px;
-            padding: 15px 20px;
+            padding: 5px 10px;
             background: rgba(15, 23, 42, 0.8);
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
@@ -431,12 +431,12 @@
             color: var(--church-gold);
             letter-spacing: 0.5px;
             text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-            padding: 10px 0;
+            padding: 5px 0;
         }
         
         .name-title {
             color: var(--church-purple);
-            font-size: 0.9rem;
+            font-size: 0.5rem;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             margin-bottom: 5px;
@@ -1144,7 +1144,7 @@
                         <i class="fas fa-link"></i>
                         <div class="detail-content">
                             <h4>Registration</h4>
-                            <p>http://dunamisbnarda.org/anniversary</p>
+                            <p>http://dunamisbnardaanniversary.netlify.app</p>
                         </div>
                     </div>
                     <div class="detail-item">
@@ -1529,7 +1529,7 @@
                     logging: false
                 }).then(canvas => {
                     const link = document.createElement('a');
-                    link.download = `digerati-event-pass-${userNames[0] || 'guest'}.png`;
+                    link.download = `dunamis-Bnarda-anniversary-event-pass-${userNames[0] || 'guest'}.png`;
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                     document.body.removeChild(tempContainer);
