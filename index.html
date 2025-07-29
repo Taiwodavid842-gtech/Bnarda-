@@ -73,15 +73,12 @@
         .logo {
             width: 60px;
             height: 70px;
-            background: ;
             border-radius: 1%;
             display: flex;
             align-items: center;
             justify-content: center;
-           
             overflow: hidden;
             transition: var(--transition);
-            border: ;
         }
         
         .logo:hover {
@@ -349,6 +346,8 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
             transition: var(--transition);
             border: 1px solid rgba(212, 175, 55, 0.3);
+            width: 100%;
+            height: auto;
         }
         
         #board:hover {
@@ -366,7 +365,7 @@
         #ina {
             position: absolute;
             top: 3%;
-            left: 2%;
+            right: 2%;
             border-radius: 7%;
             width: 25%;
             height: 22.4%;
@@ -390,11 +389,11 @@
         .church-logo-container {
             position: absolute;
             top: 4%;
-            left: 4;
-            width: 0;
-            height: 0;
+            left: 4%;
+            width: 20%;
+            height: auto;
             z-index: 2;
-            border-radius: 50%
+            border-radius: 50%;
             overflow: hidden;
             transition: var(--transition);
         }
@@ -1406,15 +1405,61 @@
         }
         updateCounters();
         
-        // Image upload functionality
+        // Image upload functionality with quality preservation
         document.getElementById('imageInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
+                // Check if file is an image
+                if (!file.type.match('image.*')) {
+                    alert('Please select an image file (JPEG, PNG)');
+                    return;
+                }
+                
+                // Check file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Image size should be less than 5MB');
+                    return;
+                }
+                
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const img = document.getElementById('displayImage');
                     img.style.display = 'block';
-                    img.src = e.target.result;
+                    
+                    // Create a new image to handle quality
+                    const uploadedImage = new Image();
+                    uploadedImage.onload = function() {
+                        // Create canvas to maintain quality
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Set canvas dimensions to match the display area
+                        const displayWidth = document.getElementById('ina').offsetWidth;
+                        const displayHeight = document.getElementById('ina').offsetHeight;
+                        
+                        // Calculate aspect ratio
+                        const aspectRatio = Math.min(
+                            displayWidth / uploadedImage.width,
+                            displayHeight / uploadedImage.height
+                        );
+                        
+                        canvas.width = displayWidth;
+                        canvas.height = displayHeight;
+                        
+                        // Draw image centered and scaled to fit
+                        ctx.drawImage(
+                            uploadedImage,
+                            0, 0, uploadedImage.width, uploadedImage.height,
+                            0, 0, 
+                            uploadedImage.width * aspectRatio, 
+                            uploadedImage.height * aspectRatio
+                        );
+                        
+                        // Set the canvas content as the image source
+                        img.src = canvas.toDataURL('image/jpeg', 0.9); // 90% quality JPEG
+                    };
+                    
+                    uploadedImage.src = e.target.result;
                     
                     // Add animation to photo frame
                     document.getElementById('ina').classList.add('pulse');
@@ -1493,87 +1538,125 @@
             }
         }
         
-        
-        
-        
-  document.getElementById('dl-png').addEventListener('click', function() {
-    const element = document.getElementById('board');
-    const nameContainer = document.getElementById('name-display-container');
-    
-    if (userNames.length === 0 && !confirm("Download without your name?")) return;
-    
-    this.classList.add('pulse');
-    setTimeout(() => this.classList.remove('pulse'), 2000);
-
-    // Set your desired dimensions
-    const desiredWidth = 500; // Adjust this for size (400-800 recommended)
-    const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'absolute';
-    tempContainer.style.left = '-9999px';
-    tempContainer.style.width = desiredWidth + 'px';
-    tempContainer.style.backgroundColor = 'white';
-
-    // Clone with high-quality profile photo handling
-    const boardClone = element.cloneNode(true);
-    boardClone.style.width = '100%';
-    
-    // Enhanced profile photo handling
-    const inaClone = boardClone.querySelector('#ina');
-    if (inaClone) {
-        const profileImg = inaClone.querySelector('#displayImage');
-        if (profileImg && profileImg.src) {
-            // Create new high-quality image element
-            const highResImg = new Image();
-            highResImg.src = profileImg.src;
-            highResImg.style.width = '100%';
-            highResImg.style.height = '100%';
-            highResImg.style.objectFit = 'cover';
-            inaClone.innerHTML = '';
-            inaClone.appendChild(highResImg);
-        }
-        
-        // Maintain positioning
-        inaClone.style.position = 'absolute';
-        inaClone.style.top = '3%';
-        inaClone.style.left = '72%';
-        inaClone.style.width = '25%';
-        inaClone.style.height = '22.4%';
-    }
-
-    tempContainer.appendChild(boardClone);
-    if (userNames.length > 0) {
-        tempContainer.appendChild(nameContainer.cloneNode(true));
-    }
-    
-    document.body.appendChild(tempContainer);
-
-    // Ultra-quality rendering
-    html2canvas(tempContainer, {
-        scale: window.devicePixelRatio || 1, // Device-aware scaling
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        allowTaint: true,
-        quality: 1,
-        letterRendering: true,
-        onclone: (clonedDoc) => {
-            // Reapply high-quality image in clone
-            const clonedIna = clonedDoc.getElementById('ina');
-            if (clonedIna) {
-                const clonedImg = clonedIna.querySelector('img');
-                if (clonedImg) {
-                    clonedImg.style.objectFit = 'cover';
+        // High-quality flyer download with fixed positioning
+        document.getElementById('dl-png').addEventListener('click', function() {
+            const element = document.getElementById('board');
+            const nameContainer = document.getElementById('name-display-container');
+            
+            if (userNames.length === 0 && !confirm("Download without your name?")) return;
+            
+            this.classList.add('pulse');
+            setTimeout(() => this.classList.remove('pulse'), 2000);
+            
+            // Create a temporary container for high-quality rendering
+            const tempContainer = document.createElement('div');
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.left = '-9999px';
+            tempContainer.style.width = '800px'; // Fixed width for consistent quality
+            tempContainer.style.backgroundColor = 'white';
+            tempContainer.style.padding = '20px';
+            tempContainer.style.borderRadius = '12px';
+            
+            // Clone the board with all elements
+            const boardClone = element.cloneNode(true);
+            boardClone.style.width = '100%';
+            boardClone.style.height = 'auto';
+            
+            // Handle the profile image with quality preservation
+            const inaClone = boardClone.querySelector('#ina');
+            if (inaClone) {
+                const profileImg = inaClone.querySelector('#displayImage');
+                if (profileImg && profileImg.src) {
+                    // Create new high-quality image element
+                    const highResImg = new Image();
+                    highResImg.src = profileImg.src;
+                    highResImg.style.width = '100%';
+                    highResImg.style.height = '100%';
+                    highResImg.style.objectFit = 'cover';
+                    inaClone.innerHTML = '';
+                    inaClone.appendChild(highResImg);
                 }
+                
+                // Maintain exact positioning
+                inaClone.style.position = 'absolute';
+                inaClone.style.top = '3%';
+                inaClone.style.right = '2%';
+                inaClone.style.width = '25%';
+                inaClone.style.height = '22.4%';
             }
-        }
-    }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = `dunamis-flyer-${userNames[0] || 'guest'}.png`;
-        link.href = canvas.toDataURL('image/png', 1.0);
-        link.click();
-        document.body.removeChild(tempContainer);
-    });
-});
+            
+            // Handle church logo
+            const logoContainer = boardClone.querySelector('.church-logo-container');
+            if (logoContainer) {
+                logoContainer.style.position = 'absolute';
+                logoContainer.style.top = '4%';
+                logoContainer.style.left = '4%';
+                logoContainer.style.width = '20%';
+            }
+            
+            tempContainer.appendChild(boardClone);
+            
+            // Add name container if available
+            if (userNames.length > 0) {
+                const nameClone = nameContainer.cloneNode(true);
+                nameClone.style.display = 'block';
+                nameClone.style.marginTop = '20px';
+                tempContainer.appendChild(nameClone);
+            }
+            
+            document.body.appendChild(tempContainer);
+            
+            // High-quality rendering with precise dimensions
+            html2canvas(tempContainer, {
+                scale: 2, // Double resolution for better quality
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                allowTaint: true,
+                quality: 1, // Maximum quality
+                letterRendering: true,
+                width: 800, // Fixed width
+                height: tempContainer.offsetHeight, // Dynamic height
+                onclone: (clonedDoc) => {
+                    // Ensure all elements maintain their positions in the clone
+                    const clonedBoard = clonedDoc.getElementById('board');
+                    if (clonedBoard) {
+                        clonedBoard.style.width = '100%';
+                        clonedBoard.style.height = 'auto';
+                    }
+                    
+                    const clonedIna = clonedDoc.getElementById('ina');
+                    if (clonedIna) {
+                        clonedIna.style.position = 'absolute';
+                        clonedIna.style.top = '3%';
+                        clonedIna.style.right = '2%';
+                        clonedIna.style.width = '25%';
+                        clonedIna.style.height = '22.4%';
+                    }
+                    
+                    const clonedLogo = clonedDoc.querySelector('.church-logo-container');
+                    if (clonedLogo) {
+                        clonedLogo.style.position = 'absolute';
+                        clonedLogo.style.top = '4%';
+                        clonedLogo.style.left = '4%';
+                        clonedLogo.style.width = '20%';
+                    }
+                }
+            }).then(canvas => {
+                // Create download link
+                const link = document.createElement('a');
+                link.download = `dunamis-flyer-${userNames[0] || 'guest'}.png`;
+                link.href = canvas.toDataURL('image/png', 1.0); // Highest quality PNG
+                link.click();
+                
+                // Clean up
+                document.body.removeChild(tempContainer);
+            }).catch(err => {
+                console.error('Error generating flyer:', err);
+                alert('Error generating flyer. Please try again.');
+                document.body.removeChild(tempContainer);
+            });
+        });
         
         // Comments functionality
         document.getElementById('post-comment-btn').addEventListener('click', function() {
